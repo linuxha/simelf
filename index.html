@@ -1,0 +1,1123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="content-language" content="en">
+
+<meta name="description" content="Enhanced SimElf: COSMAC Elf-ish JavaScript Simulator (SimElf++ / COSMAC Elf^2)">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta name="keywords" content="1802,CDP1802,RCA 1802,COSMAC Elf,JavaScript,Simulator,Emulator,SimElf,1861,CDP1861,Pixie graphics">
+
+<meta http-equiv="distribution" content="global">
+<meta name="copyright" content="Copyright (c) 2011-2016+ GNU GPL3+">
+
+<meta name="resource-type" content="document">
+<meta name="rating" content="general">
+<meta name="revisit-after" content="2 days">
+<meta name="robots" content="all">
+
+<head>
+<title>COSMAC Elf-ish CDP1802 Simulator in JavaScript (SimElf++ / COSMAC Elf^2)</title>
+
+<!-- the following files should probably (or MUST) be included in this order -->
+
+<!-- <script language="JavaScript" type="text/javascript" src="includes/segment-display.js"></script> -->
+<script language="JavaScript" type="text/javascript" src="includes/misc.js"></script>
+<script language="JavaScript" type="text/javascript" src="includes/functions.js"></script>
+<script language="JavaScript" type="text/javascript" src="includes/1802cpu.js"></script>
+<script language="JavaScript" type="text/javascript" src="includes/1802disasm.js"></script>
+<script language="JavaScript" type="text/javascript" src="includes/1802programs.js"></script>
+<script language="JavaScript" type="text/javascript" src="includes/retroterm.js"></script> <!-- moved this 1 up to here -->
+<script language="JavaScript" type="text/javascript" src="includes/simelf.js"></script>
+
+<!-- <script language="JavaScript" type="text/javascript" src="includes/freqcntr.js"></script> -->
+<!-- <script language="JavaScript" type="text/javascript" src="includes/dataleddisp.js"></script> -->
+
+<script language="JavaScript" type="text/javascript">
+  //console.log("Body: " + document.body);
+</script>
+
+<link href="includes/styles.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<!--
+   COSMAC Elf-ish Web Interface(s)
+/*
+   COSMAC Elf-ish JavaScript Simulator (SimElf++ / COSMAC Elf^2)
+
+   Enhanced web application by William Donnelly circa May 2011-2016+
+   http://www.donnelly-house.net/ -- whd1802 (at) donnelly-house.net
+   http://www.donnelly-house.net/programming/cdp1802/
+   See Change Log: changelog.txt
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+
+   Based on program/system by Maciej Szyc 2005-2006, cosmac'at'szyc.org
+   http://www.cosmac.szyc.org/  (modified and updated 'with his blessing' -- thank you)
+   Archived at: http://www.donnelly-house.net/programming/cdp1802/simelf/original/
+   (note that this original program has severe bugs -- he never debugged it completely)
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the GNU General Public License for more details.
+   http://www.gnu.org/
+*/
+-->
+
+<body onload="startSimElf();">
+
+<div id="divBoard" style="background-color: #040605; width: 517px; height: 545px; margin-left: 5px; margin-top: 5px; text-align: center; vertical-align: top;">
+
+<!-- ================================================================================ -->
+<!-- Main Chips (no displaY)                                                          -->
+<!-- ================================================================================ -->
+
+<div style="float: left; width: 517px; height: 259px; text-align: center; vertical-align: top;">
+<img src="images/elf_top.jpg" width=517 height=259 border=0 usemap="#topmap">
+</div>
+
+
+<div class="clear"></div>
+
+
+<!-- ================================================================================ -->
+<!-- Bar (Clock Frequency?)                                                           -->
+<!-- ================================================================================ -->
+
+<div style="float: left; width: 221px; height: 20px; text-align: center; vertical-align: top;">
+<img src="images/led_l1.jpg" width=221 height=20 border=0>
+</div>
+
+<div style="float: left; width: 26px; height: 20px; text-align: center; vertical-align: top;">
+<img src="images/led_l2.jpg" width=26 height=20 border=0>
+</div>
+
+<div style="float: left; width: 23px; height: 20px; text-align: center; vertical-align: top;">
+<img id="imgLED" name="imgLED" src="images/led_board_red_off.png" width=23 height=20 border=0>
+</div>
+
+<div style="float: left; width: 28px; height: 20px; text-align: center; vertical-align: top;">
+<img src="images/led_r2.jpg" width=28 height=20 border=0>
+</div>
+
+<div style="float: left; width: 219px; height: 20px; text-align: center; vertical-align: top;">
+<img src="images/led_r1.jpg" width=219 height=20 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<!-- ================================================================================ -->
+<!-- Display                                                                          -->
+<!-- ================================================================================ -->
+
+<div style="float: left; width: 517px; height: 22px; text-align: center; vertical-align: top;">
+<img src="images/elf_center.jpg" width=517 height=22 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<!-- ================================================================================ -->
+<!-- Hex Display                                                                      -->
+<!-- ================================================================================ -->
+
+<div style="float: left; width: 221px; height: 52px; text-align: center; vertical-align: top;">
+<img src="images/dis_left.jpg" width=221 height=52 border=0>
+</div>
+
+<div style="float: left; width: 36px; height: 52px; text-align: center; vertical-align: top;">
+<img id="imgHexDisplayHi" name="imgHexDisplayHi" src="images/led_digit_red_0.png" width=36 height=52 border=0
+   onDblClick="HexKeyboardEntryMode();" title="Double Click to Select Virtual Hex Keyboard Entry Mode"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';">
+</div>
+
+<div style="float: left; width: 5px; height: 52px; text-align: center; vertical-align: top;">
+<img src="images/dis_center.jpg" width=5 height=52 border=0>
+</div>
+
+<div style="float: left; width: 36px; height: 52px; text-align: center; vertical-align: top;">
+<img id="imgHexDisplayLo" name="imgHexDisplayLo" src="images/led_digit_red_0.png" width=36 height=52 border=0
+   onDblClick="HexKeyboardEntryMode();" title="Double Click to Select Virtual Hex Keyboard Entry Mode"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';">
+</div>
+
+<div style="float: left; width: 219px; height: 52px; text-align: center; vertical-align: top;">
+<img src="images/dis_right.jpg" width=219 height=52 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<!-- ================================================================================ -->
+<!-- Switches                                                                         -->
+<!-- ================================================================================ -->
+
+<div style="float: left; width: 517px; height: 40px; text-align: center; vertical-align: top;">
+<img src="images/elf_bottom.jpg" width=517 height=40 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<div style="background-color: #040605; width: 517px; text-align: center; vertical-align: top;">
+
+<div style="float: left; width: 517px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+<!-- ================================================================================ -->
+<!-- Switches                                                                         -->
+<!-- ================================================================================ -->
+
+<div style="float: left; width: 18px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>IN</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>LOAD</b></p>
+</div>
+
+<div style="float: left; width: 240px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>MP</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>RUN</b></p>
+</div>
+
+<div style="float: left; width: 19px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<div style="float: left; width: 18px; height: 50px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img src="images/switch_push.png" width=50 height=50 border=0 usemap="#inmap">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img name="switchLoad" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#loadmap">
+</div>
+
+<div style="float: left; width: 240px; height: 50px; text-align: center; vertical-align: top;">
+<img src="images/cosmacelf2.png" border=0 onclick="aboutSimElf()" title="About SimElf++..."
+   onmouseover="this.src='images/simelfblue.png'; document.body.style.cursor='pointer';"
+   onmouseout="this.src='images/cosmacelf2.png'; document.body.style.cursor='default';">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img name="switchMP" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#mpmap">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img name="switchRun" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#runmap">
+</div>
+
+<div style="float: left; width: 19px; height: 50px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<div style="float: left; width: 517px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div></tr>
+
+
+<div class="clear"></div>
+
+
+<div style="float: left; width: 18px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>7</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>6</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>5</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>4</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>3</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>2</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>1</b></p>
+</div>
+
+<div style="float: left; width: 60px; height: 10px; text-align: center; vertical-align: top;">
+<p style="margin: 0; padding: 0; font-family: Arial; font-size: 9px; color: white;"><b>0</b></p>
+</div>
+
+<div style="float: left; width: 19px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<div style="float: left; width: 18px; height: 50px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch7" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#sw7map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch6" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#sw6map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch5" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#sw5map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch4" src="images/switch_tog_down_wht.png" width=50 height=50 border=0 usemap="#sw4map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch3" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#sw3map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch2" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#sw2map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch1" src="images/switch_tog_down_red.png" width=50 height=50 border=0 usemap="#sw1map">
+</div>
+
+<div style="float: left; width: 60px; height: 50px; text-align: center; vertical-align: top;">
+<img id="DataSwitch0" src="images/switch_tog_down_wht.png" width=50 height=50 border=0 usemap="#sw0map">
+</div>
+
+<div style="float: left; width: 19px; height: 50px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+<div style="float: left; width: 517px; height: 10px; text-align: center; vertical-align: top;">
+<img src="images/spacer.png" width=1 height=1 border=0>
+</div>
+
+
+<div class="clear"></div>
+
+
+</div>
+
+</div>
+
+
+<map name="sw0map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (0);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw1map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (1);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw2map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (2);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw3map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (3);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw4map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (4);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw5map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (5);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw6map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (6);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="sw7map"><area shape=rect coords="5,5,45,45" onclick="toggleDataSwitch (7);"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+
+<map name="loadmap"><area shape=rect coords="5,5,45,45" onclick="loadProgram();" title="Load Program"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="mpmap"><area shape=rect coords="5,5,45,45" onclick="memoryProtect();" title="Memory Protect"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+<map name="runmap"><area shape=rect coords="5,5,45,45" onclick="runProgram();" title="Run Program"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+
+<map name="inmap"><area shape=rect coords="5,5,45,45" onclick="inButtonPress();" title="Input Data"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';"></area></map>
+
+<map name="topmap">
+   <area shape=rect coords="138,17,385,60" onclick="showMemDumpProgLoad();"
+      title="Load/View Hex Memory, DisAssembly, Load Programs"
+      onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='default';"></area>
+   <area shape=rect coords="158,113,363,177" onclick="alert('showCDP1802Internals() not implemented yet.');"
+      title="Show CDP1802 Internals" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='default';"></area>
+   <area shape=rect coords="400,130,488,172" onclick="alert('loadEnhancedEmulator() not implemented yet.');"
+      title="Switch to Enhanced CDP1802 Emulator" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='default';"></area>
+   <area shape=rect coords="75,60,115,113" onclick="showFreqCntr();"
+      title="Toggle Display of Frequency Counter"
+      onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='default';"></area>
+<!-- coords=left, top, right, bottom -->
+</map>
+
+
+<!-- Memory Dump, DisAssembler, Program Load & Debug "window" -->
+
+<div id="divMemDumpProgLoad" name="divMemDumpProgLoad"
+   style="display: none; position: absolute; z-index=5; top: 20px; left: 36px; width: 610px; height: 610px; border: 2px solid #800; padding: 5px; background-color: #ddd; overflow: scroll;">
+
+<span style="float: left; font-size: 13px;">
+Memory Dump, DisAssembler, Program Load &amp; Debug
+</span>
+
+<form id="formMDPL" name="formMDPL">
+
+<input type="button" id="btnSelectText" name="btnSelectText" value="Select Text"
+   style="float: right; position: relative; margin-left: 5px; margin-right: 5px;"
+   onclick="gtaTextBuffer.select()" title="Select all text">
+<input type="button" id="btnRestoreText" name="btnRestoreText" value="Restore"
+   style="float: right; position: relative; margin-left: 5px; margin-right: 5px;"
+   onclick="gtaTextBuffer.value = gsUndoBuffer;" title="One Level Undo">
+<input type="button" id="btnClearText" name="btnClearText" value="Clear"
+   style="float: right; position: relative; margin-left: 5px; margin-right: 5px;"
+   onclick="gtaTextBuffer.value = '';" title="Clear text">
+
+<textarea rows=20 cols=65 id="taTextBuffer" name="taTextBuffer" wrap="off" spellcheck="false"
+   onkeyup="getLineColumn (this, document.getElementById ('dvLineCol'));"
+   onmouseup="getLineColumn (this, document.getElementById ('dvLineCol'));"
+   style="clear: both; width: 585px; height: 333px; font-family: 'Courier New',monospace; font-size: 10pt;"></textarea>
+<br>
+<div id="dvLineCol" style="float: right;"></div>
+
+<div style="height: 5px;"></div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cbNoAddress" name="cbNoAddress" value="NoAddr"
+   title="Do not display addresses for hex dumps or disassembly">
+<label for="cbNoAddress" title="Do not display addresses for hex dumps or disassembly">
+<span style="color: #333; font-size: 80%;">No Address</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cbCompress" name="cbCompress" value="Compress"
+   title="Remove all SPACEs in hex dumps">
+<label for="cbCompress" title="Remove all SPACEs in hex dumps">
+<span style="color: #333; font-size: 80%;">Compress SP</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cbASCII" name="cbASCII" value="ASCII"
+   title="Dump ASCII with Hex">
+<label for="cbASCII" title="Dump ASCII with Hex">
+<span style="color: #333; font-size: 80%;">ASCII</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cb2ByteAddr" name="cb2ByteAddr" value="ByteAddr"
+   title="Display 2-byte addresses for DisAssembly short / page branches">
+<label for="cb2ByteAddr" title="Display 2-byte addresses for DisAssembly short / page branches">
+<span style="color: #333; font-size: 80%;">2-Byte Addr</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cbBinary" name="cbBinary" value="Binary"
+   title="Dump binary override">
+<label for="cbBinary" title="Dump binary override">
+<span style="color: #333; font-size: 80%;">Binary</span>
+</label>
+
+<br>
+<div style="height: 10px;"></div>
+
+Start: <input type="text" id="txtStartAddress" name="txtStartAddress" value="" size=4
+   onFocus="this.select();" onBlur="rangeCheck ('start');">
+
+End: <input type="text" id="txtEndAddress" name="txtEndAddress" value="" size=4
+   onFocus="this.select();" onBlur="rangeCheck ('end');">
+
+<small>(hex)</small>
+
+&nbsp;&nbsp;
+
+Bytes: <input type="text" id="txtByteCount" name="txtByteCount" value="" size=5
+   onFocus="this.select();" onBlur="rangeCheck ('bytes');">
+<small>(dec)</small>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="button" id="btnDumpMem" name="btnDumpMem" value="Dump Memory" onclick="dumpMemory();">
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cbAppend" name="cbAppend" value="Append"
+   title="Append to output instead of auto-clear">
+<label for="cbAppend" title="Append to output instead of auto-clear">
+<span style="color: #333; font-size: 80%;">Append to Output</span>
+</label>
+
+<br>
+<div style="height: 15px;"></div>
+
+<input type="button" id="btnLoadBuffer" name="btnLoadBuffer" value="Load from Text Buffer"
+   onclick="loadMemoryFromTextBuffer();">
+
+<input type="button" id="btnDisAssemble" name="btnDisAssemble" value="DisAssemble"
+   style="float: right; margin-left: 5px; margin-right: 5px;"
+   onclick="disAssembleList();">
+
+<input type="button" id="btnClearMemory" name="btnClearMemory" value="Clear RAM Memory"
+   style="float: right; margin-left: 5px; margin-right: 5px;"
+   onclick="ramClear(); dumpMemory();">
+
+<br>
+
+Load/Dump: &nbsp;
+<input type="radio" id="rbFormatHex" name="rbFormat" value="Hex"
+   title="Dump and Load using Hex format" checked="checked">
+<label for="rbFormatHex" title="Dump and Load use Hex format">
+<span style="color: #333; font-size: 80%;">Hex</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="radio" id="rbFormatIntel" name="rbFormat" value="IntelHex"
+   title="Dump and Load using Intel Hex format">
+<label for="rbFormatIntel" title="Dump and Load use Intel Hex format">
+<span style="color: #333; font-size: 80%;">Intel Hex</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="radio" id="rbFormatDec" name="rbFormat" value="Decimal"
+   title="Dump and Load using Decimal format">
+<label for="rbFormatDec" title="Dump and Load use Decimal format">
+<span style="color: #333; font-size: 80%;">Decimal</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="radio" id="rbFormatLP" name="rbFormat" value="Load Prog"
+   title="Dump and Load using 'Load Program' format">
+<label for="rbFormatLP" title="Dump and Load use 'Load Program' format">
+<span style="color: #333; font-size: 80%;">'Load Program'</span>
+</label>
+
+&nbsp;&nbsp;&nbsp;
+
+<input type="checkbox" id="cbParseAddress" name="cbParseAddress" value="ParseAddress"
+   title="HEX Force Parse Address for 'loose data formats'">
+<label for="cbParseAddress" title="HEX Force Parse Address for 'loose data formats'">
+<span style="color: #333; font-size: 80%;">Parse Address</span>
+</label>
+
+<br>
+<div style="height: 10px;"></div>
+
+<select id="selProgramToLoad" name="selProgramToLoad"
+   style="background-color: #ffffc0; color: #000; margin-top: 5px;"
+    title="Select a program from this drop-down list to load">
+
+<script language="JavaScript" type="text/javascript">
+// <!--
+   createProgsSelectList();
+// -->
+</script>
+
+</select>
+<br>
+
+&nbsp;&nbsp;&nbsp; <input type="button" id="btnLoadProgram" name="btnLoadProgram" value="Load Selected Program"
+   onclick="loadSelectedProgram();" style="margin-bottom: 5px;" title="Select a program from the drop-down list above to load">
+
+<br>
+<div style="height: 20px;"></div>
+
+<input type="button" id="btnDebugToggle" name="btnDebugToggle" value="Debug On"
+   onclick="debugMode();" title="Debug Mode: On/Off Toggle" style="margin-left: 25px;">
+<input type="button" id="btnSingleStep" name="btnSingleStep" value="Debug SS"
+   onclick="singleStep(true);" title="Debug Mode: Single Step Execution">
+<input type="button" id="btnRunToBreakpoint" name="btnRunToBreakpoint" value="Debug BP"
+   onclick="runToBreakpoint();" title="Debug Mode: Run Execution until Breakpoint">
+<input type="button" id="btnDebugTrace" name="btnDebugTrace" value="Debug Trace"
+   onclick="debugTraceStart();" title="Debug Mode: Trace until Breakpoint">
+<input type="button" id="btnHalt" name="btnHalt" value="Halt"
+   onclick="if(gbRunFlag){runProgram();}else{alert('Not running.');}" title="Halt if running">
+
+<input type="button" id="btnDone" name="btnDone" value="Done"
+   style="float: right; margin-left: 5px; margin-right: 5px; height: 30px; width: 60px; font-size: 110%;"
+   onclick="gbIgnoreKeys = false; document.getElementById('divMemDumpProgLoad').style.display='none';">
+
+</form>
+
+</div>
+
+
+<!-- ================================================================================ -->
+<!-- 1802 Retro Term Window                                                           -->
+<!-- ================================================================================ -->
+
+<!-- 1802 Retro Terminal "window" -->
+
+<div id="winRetroTerm" name="winRetroTerm" class="winRetroTerm winRetroTermMinimize"
+   onclick="retroTermFocus();">
+
+<form name="frmRetroTerm">
+
+<div id="winRetroTermTopBar" name="winRetroTermTopBar" class="winRetroTermTopBar" style=""
+   onmousedown="objRetroTermDragStart (event, 'winRetroTerm');"
+   onclick="retroTermFocus();"
+   onmouseover="if (document.body.style.cursor!='pointer') document.body.style.cursor='move';"
+   onmouseout="document.body.style.cursor='default';">
+
+<img src="images/mac_red_close.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+   onclick="retroTermClose();" title="Close" onmouseover="document.body.style.cursor='pointer';"
+   onmouseout="document.body.style.cursor='move';">
+<img src="images/mac_amber_minimize.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+   onclick="retroTermMinimize();" title="Minimize" onmouseover="document.body.style.cursor='pointer';"
+   onmouseout="document.body.style.cursor='move';">
+<img src="images/mac_green_zoom.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+   onclick="retroTermMaximize();" title="Maximize" onmouseover="document.body.style.cursor='pointer';"
+   onmouseout="document.body.style.cursor='move';">
+
+1802 Retro Terminal
+
+<span style="float: right; color: #00a;" title="Open Options Dialog"
+   onclick="document.getElementById('divOptions').style.display='block'; retroTermFocus();"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='move';">
+Options</span>
+
+<span style="float: right; color: #003; margin-right: 10px;" title="Clear Screen"
+   onclick="retroTermCLS(); retroTermFocus();"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='move';">
+CLS</span>
+
+</div>
+
+<div id="divOptions" name="divOptions" class="divOptions"
+   style="display: none; position: absolute; background-color: #888; text-align: left; padding: 5px;"
+   onBlur="retroTermFocus();">
+
+<span style="color: #333; font-size: 100%; float: left;">
+<b>Options and Preferences</b>
+</span>
+
+<img src="images/xclose.png" border=0 style="float: right; border: thin solid #000; padding: 2px;"
+   onclick="document.getElementById('divOptions').style.display='none'; retroTermFocus();"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';">
+
+<br clear="both">
+
+<span style="color: #333; font-size: 80%;">
+Terminal Type: &nbsp;
+</span>
+
+<input type="radio" id="radTermType1" name="radTermType" value="Green"
+   onclick="gtaRTScreen.className = 'qtPhosphorGreen'; retroTermFocus();">
+<label for="radTermType1" title="Green Phosphor">
+<span style="color: #0f0; font-size: 80%;">Green</span>
+</label>
+
+<input type="radio" id="radTermType2" name="radTermType" value="White"
+   onclick="gtaRTScreen.className = 'qtPhosphorWhite'; retroTermFocus();">
+<label for="radTermType2" title="White Phosphor">
+<span style="color: #fff; font-size: 80%;">White</span>
+</label>
+
+<input type="radio" id="radTermType3" name="radTermType" value="Amber"
+   onclick="gtaRTScreen.className = 'qtPhosphorAmber'; retroTermFocus();">
+<label for="radTermType3" title="Amber Phosphor">
+<span style="color: #fc0; font-size: 80%;">Amber</span>
+</label>
+
+<input type="radio" id="radTermType4" name="radTermType" value="Reverse"
+   onclick="gtaRTScreen.className = 'qtPhosphorReverse'; retroTermFocus();">
+<label for="radTermType4" title="Reverse Phosphor (Black on White)">
+<span style="color: #fff; font-size: 80%;">Reverse</span>
+</label>
+
+<input type="radio" id="radTermType5" name="radTermType" value="Teletype"
+   onclick="gtaRTScreen.className = 'qtTeletypeWriter'; retroTermFocus();">
+<label for="radTermType5" title="TeletypeWriter">
+<span style="color: #333; font-size: 80%;">TeletypeWriter</span>
+</label>
+
+<hr size=1 noshade> <!-- style="border: 1px solid #336;"> -->
+
+<span style="color: #333; font-size: 80%;">
+Echo: &nbsp;
+</span>
+
+<input type="radio" id="radEchoType1" name="radEchoType" value="Local"
+   onclick="retroTermFocus();">
+<label for="radEchoType1" title="Local Echo (auto)">
+<span style="color: #333; font-size: 80%;">Local</span>
+</label>
+
+<input type="radio" id="radEchoType2" name="radEchoType" value="Remote"
+   onclick="retroTermFocus();">
+<label for="radEchoType2" title="Remote Echo (send-back)">
+<span style="color: #333; font-size: 80%;">Remote</span>
+</label>
+
+</div>
+
+<textarea cols=80 rows=24 id="taRetroTermScreen" name="taRetroTermScreen" class="qtPhosphorGreen" spellcheck="false"
+   style="font-family: 'Courier New',monospace; font-size: 13px; resize: none; margin: 0; padding: 3px; border: 0"
+	  onkeyup="return retroTermKeyCodeHandler(event);"
+	  onkeypress="return retroTermKeyPressHandler(event);"
+   onpaste="return false;" spellcheck="false">
+</textarea>
+
+</form>
+
+</div>
+
+
+<!-- Frequency Counter -->
+
+<div id="winFreqCntr" name="winFreqCntr" class="winFreqCntr winFreqCntrMinimize">
+
+   <div id="winFreqCntrTopBar" name="winFreqCntrTopBar" class="winFreqCntrTopBar" style=""
+      onmousedown="objFreqCntrDragStart (event, 'winFreqCntr');"
+      onmouseover="if (document.body.style.cursor!='pointer') document.body.style.cursor='move';"
+      onmouseout="document.body.style.cursor='default';">
+
+   <img src="images/mac_red_close.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+      onclick="freqCntrClose();" title="Close" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='move';">
+   <img src="images/mac_amber_minimize.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+      onclick="freqCntrMinimize();" title="Minimize" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='move';">
+   <img src="images/mac_green_zoom.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+      onclick="freqCntrMaximize();" title="Maximize" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='move';">
+
+   Clock Frequency Counter
+
+   <span style="float: right; color: #003; margin-right: 3px; font-size: 80%; color: #00c;"
+      title="Reset Clock Speed to Maximum"
+      onclick="freqCntrMaxSpeed();"
+      onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='move';">
+Max Speed</span>
+
+   <br>
+   <span style="font-size: 80%; color: #000; float: right;">(Instructions Per Second Execution)</span>
+
+   </div>
+
+   <canvas id="freqcntrdisp" width="300" height="50" style="float: left; background-color: #000; padding: 10px; margin: 10px;">
+     Your browser unfortunately does not support canvas elements.
+   </canvas>
+
+   <div style="float: right; margin-top: 5px;">
+      <img src="images/redarrowup64xdis.png" id="FreqCntrUpX" name="FreqCntrUpX"
+         style="float: right; margin: 5px;" title="Increase 'clock' x100"
+         onclick="freqCntrChange(-100);">
+      <img src="images/redarrowup64dis.png" id="FreqCntrUp" name="FreqCntrUp"
+         style="float: right; margin: 5px;" title="Increase 'clock' x10"
+         onclick="freqCntrChange(-10);">
+      <div style="clear: both;"></div>
+      <img src="images/redarrowdown64x.png" id="FreqCntrDownX" name="FreqCntrDownX"
+         style="float: right; margin: 5px;" title="Decrease 'clock' x100"
+         onclick="freqCntrChange(100);">
+      <img src="images/redarrowdown64.png" id="FreqCntrDown" name="FreqCntrDown"
+         style="float: right; margin: 5px;" title="Decrease 'clock' x10"
+         onclick="freqCntrChange(10);">
+   </div>
+
+   <div id="freqcntrtext" style="color: #fff; font-family: 'Courier New',monospace; float: right; margin-right: 5px;"></div>
+   <div id="freqcntrms" style="color: #fff; font-family: 'Courier New',monospace; float: right; margin-right: 5px;"></div>
+
+</div>
+
+
+<!-- Data LED Display -->
+
+<div id="winLEDDisp" name="winLEDDisp" class="winLEDDisp winLEDDispMinimize">
+
+   <div id="winLEDDispTopBar" name="winLEDDispTopBar" class="winLEDDispTopBar" style=""
+      onmousedown="objLEDDispDragStart (event, 'winLEDDisp');"
+      onmouseover="if (document.body.style.cursor!='pointer') document.body.style.cursor='move';"
+      onmouseout="document.body.style.cursor='default';">
+
+   <img src="images/mac_red_close.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+      onclick="LEDDispClose();" title="Close" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='move';">
+   <img src="images/mac_amber_minimize.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+      onclick="LEDDispMinimize();" title="Minimize" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='move';">
+   <img src="images/mac_green_zoom.png" border=0 style="float: left; margin-left: 3px; margin-right: 3px;"
+      onclick="LEDDispMaximize();" title="Maximize" onmouseover="document.body.style.cursor='pointer';"
+      onmouseout="document.body.style.cursor='move';">
+
+   Data LED Display
+
+   </div>
+
+   <div style="margin-top: 10px; text-align: center;">
+      <img src="images/redLEDoff.png" id="DataLEDBit7" name="DataLEDBit7" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit6" name="DataLEDBit6" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit5" name="DataLEDBit5" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit4" name="DataLEDBit4" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit3" name="DataLEDBit3" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit2" name="DataLEDBit2" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit1" name="DataLEDBit1" style="margin: 3px;">
+      <img src="images/redLEDoff.png" id="DataLEDBit0" name="DataLEDBit0" style="margin: 3px;">
+   </div>
+
+   <div style="margin-top: 5px; text-align: left;">
+      &nbsp;
+      <img src="images/redLEDoff.png" style="margin: 3px; width: 12px; height: 12px;"
+         title="Select Red LEDs"
+         onclick="gnDatLEDColor=DLD_RED; dataLEDDisplay (gnDispData, true);">
+      <img src="images/greenLEDoff.png" style="margin: 3px; width: 12px; height: 12px;"
+         title="Select Green LEDs"
+         onclick="gnDatLEDColor=DLD_GREEN; dataLEDDisplay (gnDispData, true);">
+      <img src="images/blueLEDoff.png" style="margin: 3px; width: 12px; height: 12px;"
+         title="Select Blue LEDs"
+         onclick="gnDatLEDColor=DLD_BLUE; dataLEDDisplay (gnDispData, true);">
+      <img src="images/whiteLEDoff.png" style="margin: 3px; width: 12px; height: 12px;"
+         title="Select White LEDs"
+         onclick="gnDatLEDColor=DLD_WHITE; dataLEDDisplay (gnDispData, true);">
+      <img src="images/yellowLEDoff.png" style="margin: 3px; width: 12px; height: 12px;"
+         title="Select Yellow LEDs"
+         onclick="gnDatLEDColor=DLD_YELLOW; dataLEDDisplay (gnDispData, true);">
+      <img src="images/amberLEDoff.png" style="margin: 3px; width: 12px; height: 12px;"
+         title="Select Amber LEDs"
+         onclick="gnDatLEDColor=DLD_AMBER; dataLEDDisplay (gnDispData, true);">
+   </div>
+
+</div>
+
+
+<!-- Help and About -->
+
+<div id="winHelpMark" name="winHelpMark" class="winHelpMark">
+
+<img src="images/helpmark.png" width=32 height=32 border=0
+   onclick="helpToggle();" title="A Little Help"
+   onmouseover="document.body.style.cursor='pointer';" onmouseout="document.body.style.cursor='default';">
+</div>
+
+<div id="winHelp" name="winHelp" class="winHelp" style="display: none;">
+
+<hr size=2>
+
+<p>
+You are experiencing the <b>COSMAC Elf-ish CDP1802 Simulator</b>
+<br>
+(a web app in JavaScript) &mdash; aka: &nbsp; SimElf++ / COSMAC Elf<sup>2</sup>.
+</p>
+
+<p class="pw500">
+This web application is an online implementation of a CRAV (Classic / Retro / Antique / Vintage)
+microcomputer system known as the COSMAC Elf. It was offered as a DIY build-it-yourself article in the
+August / September 1976 issues of Popular Electronics magazine, with enhancement articles later. It
+uses the CDP1802 microprocessor, which is simulated here, along with memory and other hardware items
+like switches and LED displays. The current interface is one that looks like the original build of
+the hardware.
+</p>
+
+<p class="pw500">
+At this point, the 1802 simulation is not 100%, in that some aspects have not been implemented.
+Interrupts, DMA In, and DMA Out are not supported. Therefore, the 00 hex IDL opcode is used as a
+breakpoint command. And 78h SAV and 79h MARK are not implemented, either, and generate Javascript
+Alert dialog boxes. The "undefined" 68h opcode is treated like a NOP (no operation -- it just
+increments the PC to the next memory address)
+</p>
+
+<p class="pw500">
+This web application runs in most popular web browsers. I suggest you use Pale Moon or Firefox,
+which are the development browsers, so it will always work correctly using them. (currently version
+PM 23.6.2 and Ffx 47.01 &mdash; <a href="http://www.palemoon.org/" target="_blank">www.palemoon.org</a>
+&amp; <a href="http://www.getfirefox.com/" target="_blank">www.getfirefox.com</a>) Cross-browser
+development is attempted, but your mileage may vary. (especially Internet Explorer; but it seems to
+run in Opera (12.17) and Chrome (51.0)) The most recent version of any web browser should be used
+to insure that compatibility is achieved. <i>It runs online, so there is no need to download anything.</i>
+A ZIP archive of the project will be available for download at some point so you can run it locally
+on your computer without the need to be connected to the Internet, although it works better locally
+in some browsers than others. (Note that you will have to be cognizant that updates, enhancements
+and bug fixes would need to be re-downloaded at some point)
+</p>
+
+<p class="pw500">
+Check out my other simulator,
+<a href="http://www.donnelly-house.net/programming/cdp1802/tolkien1802/">Tolkien</a>
+&ndash; An 1802 COSMAC Elf-ish Retro-Retro Emulator.
+<br>
+Version 0.9 alpha pre-release written in QB64. (Quick BASIC 64) This offline program
+should work on most Windows DOS systems, and will eventually work for Mac and *nix.
+</p>
+
+<p class="pw500">
+Visit us at the <b>CRAV Computing</b> and COSMAC Elf Yahoo Discussion Groups.
+<br>
+<a href="http://groups.yahoo.com/group/cravcomp/" target="_blank">
+<img src="images/yahoogroupscravcomp.png" border=1>
+</a>
+&nbsp;
+<a href="http://groups.yahoo.com/group/cosmacelf/" target="_blank">
+<img src="images/yahoogroupscosmacelf.png" border=1>
+</a>
+</p>
+
+<p class="pw500">
+<big><b>The User Interface</b></big>
+</p>
+
+<p class="pw500" style="text-align: center;">
+<img src="images/simelfboardhelp.jpg" width=390 height=410 border=0
+   title="SimElf Board Help">
+</p>
+
+<p class="pw500">
+The default interface has a panel of switches at the bottom that operate the computer system like
+the actual physical hardware works, and a photo of an actual board at the top with the discrete
+electronic components and integrated circuit (IC) chips that make up the computer. Some of these
+items are clickable, as shown with a red box around them above and explanatory text in yellow.
+</p>
+
+<p class="pw500">
+<big><b>Switches</b></big>
+</p>
+
+<p class="pw500">
+The toggle switches toggle up and down, on and off, with each click.
+See below for an explanation of each switch's function.
+The momentary pushbutton on the left does not change when pressed.
+Most clickable items change from the default browser cursor pointer
+to a hand when hovered over. (note that most items have "hover-quick-help" as well)
+</p>
+
+<p class="pw500">
+<big><b>Clickable Regions</b></big>
+</p>
+
+<p class="pw500">
+<b>About...</b> pops up a dialog box that has information about this web application.
+The image also changes to blue when hovered over with the cursor.
+</p>
+
+<p class="pw500">
+<b>Show CDP1802 Internals</b> (the CDP1802 microprocessor chip) is not yet implemented.
+</p>
+
+<p class="pw500">
+<b>Switch to Enhanced CDP1802 Emulator</b> (the power regulator) is not yet implemented.
+(this will offer an expansive interface that is different from the default interface)
+</p>
+
+<p class="pw500">
+<b>Virtual Hex Keyboard Entry Mode</b> (the hex LED displays) offers a quick-entry mode
+for programs by using your keyboard.
+(as an alternative to the eight data/programming toggle switches)
+<i>This selection must be <b>double-clicked</b> to activate and select</i>.
+Each time it toggles between three modes (four if you count 'off / back to default'),
+and there is a pop-up dialog box that informs you of what mode you are in.
+You must press the OK button on the dialog box to dismiss it and begin entry.
+Note that you must be in <b>LOAD</b> mode for this feature to work. (see below)
+All entered values are shown in the browser status bar as: "Address HHHH : HH".
+You may exit Virtual Hex Keyboard Entry Mode by pressing the ESCape key.
+</p>
+
+<p class="pw500" style="margin-left: 1em;">
+<small>(Note: for the Firefox browser (which we suggest you use, and for which this
+web app was created), and possibly for other browsers with similar features,
+you must disable the "Search for text when I start typing" option to enter values
+using your keyboard &mdash; in Firefox 9, this option can be found via main menu item
+<i>Tools | Options</i>, upper tab <i>Advanced</i>, sub-tab <i>General</i>)</small>
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+<b>&bull; <i>Auto-enter after every two hex digits</i></b> is for quick-entry.
+This allow you to enter continual two-digit hex values (0-9 and A-F (capital or lowercase)),
+performing an auto-<b>IN</b> after each sequence. The hex digits are shown in the LED display.
+When you press the first digit, the left LED display is blank / off.
+If you enter the first digit in error, you may press the BACKSPACE key to delete it.
+There is no edit mode for the next digit in 'quick entry mode'. All other keys are ignored.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+<b>&bull; <i>Must press ENTER to input hex value</i></b> mode works similarly
+to the first mode, except, as you press hex digits, they cycle through the display.
+To enter the value shown, press the ENTER key. If no hex digit is entered for the
+first / left digit, or both digits are blank, the entry is ignored. You may also use
+the BACKSPACE key, but it will not only delete the last digit entered, but shift the
+previous digit right.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+<b>&bull; <i>Must press ENTER or SPACE to input hex value</i></b> mode works similarly
+to the previous mode, except you may also press the SPACE key to enter the value.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+<b>&bull; <i>Hex entry mode is off</i></b> notifies you that hex entry mode is now off
+and you are back to the default mode.
+You must then use the eight data/programming toggle switches to enter values.
+During any of the Hex Entry Modes, you may press the <b>IN</b> button to enter values
+using the toggle switches.
+</p>
+
+<p class="pw500">
+<b>Memory Dump, DisAssembler, Program Load &amp; Debug</b> (the memory chips) opens up a window
+that offers an additional extended interface that allows many features for loading, viewing, and
+listing memory values and disassembled mnemonic instructions, loading some 'pre-installed' programs,
+some simple debugging, and some other features and functionality.
+</p>
+
+<p class="pw500" style="text-align: center;">
+<img src="images/memdumpdisassprogloaddeb.png" border=0
+   title="Memory Dump, DisAssembler, Program Load &amp; Debug Help">
+</p>
+
+
+<p class="pw500">
+... more help text to come ...
+</p>
+
+<p class="pw500">
+Following is what I sent someone as "quick help" when they couldn't figure it out.
+I will update this and make it better. I thought it was mostly fairly evident, but I guess not.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+I haven't added a file open dialog yet, so you have top copy and paste
+the hex data plain text into the text box.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+Then you click the <b>Load From Text Buffer</b> button, but first you choose
+one of the formats below that: <b>Hex</b>, <b>Intel</b>, <b>Decimal</b> and <b>'Load Program'</b>.
+The last two are not used much.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+This loads the hex data into the 64K memory.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+I'm in the process of updating the way it all works and I can't remember
+what the old system did versus my new changes that I haven't published yet.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+Then you can use the <b>Dump Memory</b> button to output hex to the text box,
+where you have to copy and paste to wherever you want. (your file)
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+When you load memory, it sets the <b>Start</b>, <b>End</b>, and <b>Bytes</b> values.
+But you can set those to whatever you want.
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+Or you can use the <b>DisAssemble</b> button to disassemble the program into
+opcode mnemonics. (if there's program code and data, you have to copy
+and paste the different output formats as needed -- there is no DB type
+"opcodes" in this version)
+</p>
+
+<p class="pw500" style="margin-left: 3em;">
+And you can use the <b>No Address</b>, <b>Compress SP</b>, <b>ASCII</b>, <b>2-Byte Addr</b>, and <b>Binary</b>
+checkboxes to change some of the ways the 'hex' dump and disassembly is formatted
+for input and (mostly) output.
+</p>
+
+<br>
+
+<hr>
+
+<p>
+Project / Webpage Technical Data, Information, Status, Credits, &amp;tc.
+</p>
+
+<pre><small>
+   Enhanced web application by William Donnelly circa May 2011-2016+
+   <a href="http://www.donnelly-house.net/" target="_blank">http://www.donnelly-house.net/</a> -- whd1802 (at) donnelly-house.net
+   <a href="http://www.donnelly-house.net/programming/cdp1802/" target="_blank">http://www.donnelly-house.net/programming/cdp1802/</a>
+
+   See Change Log: <a href="changelog.txt">changelog.txt</a>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+
+   Based on program/system by Maciej Szyc 2005-2006, cosmac'at'szyc.org
+   <a href="http://www.cosmac.szyc.org/" target="_blank">http://www.cosmac.szyc.org/</a>  (modified and updated 'with his blessing' -- thank you)
+   Archived at: <a href="http://www.donnelly-house.net/programming/cdp1802/simelf/original/" target="_blank">http://www.donnelly-house.net/programming/cdp1802/simelf/original/</a>
+   (note that this original program has severe bugs -- he never debugged it completely)
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   See the GNU General Public License for more details.
+   <a href="http://www.gnu.org/" target="_blank">http://www.gnu.org/</a>
+</small></pre>
+
+</div>
+
+</body>
+</html>
